@@ -13,7 +13,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { DashboardUserButton } from "@/modules/auth/ui/components/dashboard-user-button";
+import { DashboardUserButton } from "@/modules/dashboard/ui/components/dashboard-user-button";
 
 const firstSection = [
   {
@@ -45,7 +45,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="text-siderbar-accent-foreground">
-        <Link href="/" className="flex items-center gap-2 px-2 pt-2">
+        <Link href="/public" className="flex items-center gap-2 px-2 pt-2">
           <Image src="/logo.svg" height={36} width={36} alt="Meet.Ai" />
           <p className="text-2xl font-semibold">Meet.AI</p>
         </Link>
