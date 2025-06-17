@@ -6,7 +6,7 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarSeparator,
-  SidebarTrigger, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton,
+  SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
 import Link from "next/link";
