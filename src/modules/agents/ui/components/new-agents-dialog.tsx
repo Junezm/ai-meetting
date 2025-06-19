@@ -1,5 +1,4 @@
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Form, FormField, FormLabel, Input, Textarea } from "@/components/ui/form";
 import { AgentForm } from "./agent-form";
 
 interface NewAgentDialogProps {
