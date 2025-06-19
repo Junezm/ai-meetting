@@ -63,7 +63,6 @@ export const AgentForm = ({ onCancel, onSuccess, initialValues }: AgentFormProps
   const onSubmit = async (values: z.infer<typeof agentsInsertSchema>) => {
     if (isEdit) {
       await createAgent.mutateAsync({
-        id: initialValues?.id ?? '',
         name: values.name,
         instructions: values.instructions,
       })
