@@ -30,14 +30,14 @@ export default async function Page({ searchParams }: Props) {
     
   return (
     <>
-    <AgentsListHeader />
-     <HydrationBoundary state={dehydrate(queryClient)}>
+      <AgentsListHeader />
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense
          fallback={<AgentsViewLoading />}
         >
           <ErrorBoundary fallback={<AgentsViewError />} >
             <AgentsView />
-          </ErrorBoundary> 
+          </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>
     </>
