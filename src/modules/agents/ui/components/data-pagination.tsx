@@ -8,7 +8,7 @@ interface Props {
   onPageChange: (page: number) => void;
 }
 
-export const DataPagination = async (
+export const DataPagination = (
   {
     page,
     totalPages,

@@ -1,16 +1,18 @@
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { AgentForm } from "./agent-form";
+import { AgentGetOne } from "@/modules/agents/types";
 
-interface NewAgentDialogProps {
+interface UpdateAgentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialValues: AgentGetOne;
 }
 
-export const NewAgentDialog = ({ open, onOpenChange }: NewAgentDialogProps) => {
+export const UpdateAgentDialog = ({ open, onOpenChange, initialValues }: UpdateAgentDialogProps) => {
   return (
     <ResponsiveDialog
-      title="New Agent"
-      description="Create a new agent"
+      title="Edit Agent"
+      description="Edit a new agent"
       open={open}
       onOpenChange={onOpenChange}
       >
@@ -21,6 +23,7 @@ export const NewAgentDialog = ({ open, onOpenChange }: NewAgentDialogProps) => {
         onCancel={() => {
           onOpenChange(false);
         }}
+        initialValues={initialValues}
       />
     </ResponsiveDialog>
   );

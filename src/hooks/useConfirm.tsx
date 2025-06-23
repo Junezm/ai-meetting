@@ -1,4 +1,6 @@
 import { JSX, useState } from "react";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { Button } from "@/components/ui/button";
 
 export const useConfirm = (title: string, description: string): [() => JSX.Element, () => Promise<unknown>] => {
   const [promise, setPromise] = useState<{ resolve: (value: boolean) => void }| null>(null);
@@ -24,13 +26,34 @@ export const useConfirm = (title: string, description: string): [() => JSX.Eleme
   };
 
   const ConfirmationDialog = () => {
-
     return (
-      Res
-    )
-  }
+      <ResponsiveDialog
+        open={promise !== null}
+        onOpenChange={handleClose}
+        title={title}
+        description={description}
+      >
+        <div className="pt-4 w-full flex flex-col-reverse gap-y-2 lg:flex-grow gap-x-2 items-center justify-end">
+          <Button
+            onClick={handleCancel}
+            variant="outline"
+            className="w-full lg:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            className="w-full lg:w-auto"
+          >
+            Confirm
+          </Button>
+        </div>
+      </ResponsiveDialog>
+    );
+  };
 
   return [
-
+    ConfirmationDialog,
+    confirm,
   ]
 }
