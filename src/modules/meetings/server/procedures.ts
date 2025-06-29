@@ -1,6 +1,7 @@
 import { db } from '@/db';
 import { agents, meetings } from '@/db/schema';
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { meetingsInsertSchema, meetingsUpdateSchema } from '../schema';
 import { and, count, desc, eq, getTableColumns, ilike, sql } from 'drizzle-orm';
 import z from 'zod';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from '@/constants';
@@ -19,26 +20,27 @@ export const meetingsRouter = createTRPCRouter({
 
 
       const data = await db.select({
-        ...getTableColumns(meetings),
+        meetingCount: sql<number>`5`,
+        ...getTableColumns(agents),
       })
-        .from(meetings)
+        .from(agents)
         .where(
           and(
-            eq(meetings.userId, ctx.auth.user.id),
-            search ? ilike(meetings.name, `%${search}%`) : undefined
+            eq(agents.userId, ctx.auth.user.id),
+            search ? ilike(agents.name, `%${search}%`) : undefined
           )
         )
-        .orderBy(desc(meetings.createdAt), desc(meetings.id))
+        .orderBy(desc(agents.createdAt), desc(agents.id))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
 
     const [total] = await db
       .select({ count: count()})
-      .from(meetings)
+      .from(agents)
       .where(
         and(
-          eq(meetings.userId, ctx.auth.user.id),
-          search ? ilike(meetings.name, `%${search}%`) : undefined
+          eq(agents.userId, ctx.auth.user.id),
+          search ? ilike(agents.name, `%${search}%`) : undefined
         )
       )
     const totalPages = Math.ceil(total.count / pageSize);
@@ -48,11 +50,25 @@ export const meetingsRouter = createTRPCRouter({
       totalPages,
     };
   }),
-  getOne: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
+  create: protectedProcedure
+    .input(meetingsInsertSchema)
+    .mutation(async ({ input, ctx}) => {
+      // const { name, instructions } = input;
+      // const { auth } = ctx;
+      const [createMeetings] = await db
+        .insert(meetings)
+        .values({
+          ...input,
+          userId: ctx.auth.user.id,
+        })
+        .returning();
+
+      return createMeetings;  
+    }),
+  getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
       const [existMeeting] = await db
         .select({
+          meetingCount: sql<number>`5`,
           ...getTableColumns(meetings),
         })
         .from(meetings)
@@ -63,13 +79,35 @@ export const meetingsRouter = createTRPCRouter({
           )
         );
 
-      if(!existMeeting) {
+      if(!existMeeting) { 
         throw new TRPCError({
           code: 'NOT_FOUND',
-          message: 'Agent not found',
+          message: 'Meeting not found',
         });
       }  
 
       return existMeeting;
     }),
+    update: protectedProcedure
+    .input(meetingsUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [updateMeeting] = await db
+        .update(meetings)
+        .set(input)
+        .where(
+          and(
+            eq(meetings.id, input.id),
+            eq(meetings.userId, ctx.auth.user.id)
+          )
+        )
+        .returning();
+
+      if(!updateMeeting) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Meeting not found',
+        });
+      }
+      return updateMeeting;
+  })
 })

@@ -11,7 +11,8 @@ export const MeetingView = () => {
 
   return (
     <div>
-      <h1>Meeting View</h1>
+        <h1>Meeting View</h1>
+      {JSON.stringify(data, null, 2)}
     </div>
   )
 }
