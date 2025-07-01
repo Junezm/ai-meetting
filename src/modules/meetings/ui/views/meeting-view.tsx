@@ -19,7 +19,6 @@ export const MeetingView = () => {
   const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions({
     ...filters
   }))
-console.log(data);
 
   return (
     <div className="flex-1 pb-4 px-4 md:px-8 flex-col gap-y-4">

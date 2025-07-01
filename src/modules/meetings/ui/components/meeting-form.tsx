@@ -65,6 +65,7 @@ export const MeetingForm = ({ onCancel, onSuccess, initialValues }: MeetingFormP
           await queryClient.invalidateQueries(
             trpc.meetings.getOne.queryOptions({
               id: initialValues.id,
+
             }),
           );
         }
@@ -91,12 +92,12 @@ export const MeetingForm = ({ onCancel, onSuccess, initialValues }: MeetingFormP
 
   const onSubmit = (values: z.infer<typeof meetingsInsertSchema>) => {
     if (isEdit) {
+      console.log(values);
       updateMeeting.mutateAsync({
         id: initialValues!.id,
         ...values,
       })
     } else {
-      console.log(values);
       createMeeting.mutateAsync(values);
     }
   };
