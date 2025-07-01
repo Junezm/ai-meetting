@@ -25,7 +25,6 @@ export const AgentsView = () => {
         columns={columns}
         data={data.items}
         onRowClick={(row) => router.push(`/agents/${row.id}`)}
-
       />
       <DataPagination 
         page={filters.page}
