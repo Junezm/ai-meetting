@@ -7,8 +7,30 @@ import z from 'zod';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from '@/constants';
 import { TRPCError } from '@trpc/server';
 import { MeetingStatus } from '../types';
+import { streamVideo } from '@/lib/stream-video';
+import { generatedAvatarUri } from '@/lib/avatar';
 
 export const meetingsRouter = createTRPCRouter({
+  generateToken: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      await streamVideo.upsertUsers([
+        {
+           id: ctx.auth.user.id,
+           name: ctx.auth.user.name,
+           role: 'admin',
+           image: ctx.auth.user.image ?? generatedAvatarUri({ seed: ctx.auth.user.name, variants: "initials" }),
+        }
+      ]);
+
+      const expirationTime = Math.floor(Date.now() / 1000) + 3600;
+      const issueAt = Math.floor(Date.now() / 1000) - 60;
+      const token = streamVideo.generateUserToken({
+        user_id: ctx.auth.user.id,
+        exp: expirationTime,
+        validity_in_seconds: issueAt,
+      });
+      return token;
+    }),
   // todo change getmany to use protectedProcedure
   getMany: protectedProcedure
     .input(z.object({
@@ -77,7 +99,55 @@ export const meetingsRouter = createTRPCRouter({
           userId: ctx.auth.user.id,
         })
         .returning();
+      
+      const call = streamVideo.video.call("default", createMeetings.id);
+      await call.create({
+        data: {
+          created_by_id: ctx.auth.user.id,
+          custom: {
+            meetingId: createMeetings.id,
+            meetingType: createMeetings.name,
+          },
+          settings_override: {
+            transcription: {
+              language: "en",
+              mode: "auto-on",
+              closed_caption_mode: "auto-on"
+            },
+            recording: {
+              mode: "auto-on",
+              quality: "1080p",
+            },
+          },
+        },
+      });
 
+      const [existAgent] = await db
+        .select()
+        .from(agents)
+        .where(
+          eq(agents.id, createMeetings.agentId)
+        );
+        
+      if(!existAgent) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Agent not found',
+        });
+      }
+
+      await streamVideo.upsertUsers([
+        {
+          id: existAgent.id,
+          name: existAgent.name,
+          role: "user",
+          image: generatedAvatarUri({
+            seed: existAgent.name,
+            variants: "botttsNeutral",
+          })
+        }
+      ]);
+      
       return createMeetings;  
     }),
   getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
